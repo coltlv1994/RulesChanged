@@ -1,0 +1,23 @@
+﻿<Window x:Class="RulesChangedWPFNET.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:RulesChangedWPFNET"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="25*"/>
+            <ColumnDefinition Width="7*"/>
+        </Grid.ColumnDefinitions>
+        <Menu Grid.ColumnSpan="2" HorizontalAlignment="Left" VerticalAlignment="Top" Width="800">
+            <MenuItem Header="File">
+                <MenuItem Header="Open" IsCheckable="False" Click="MenuItem_Click_file_open"/>
+                <MenuItem x:Name="Menu_file_save" Header="Save" IsCheckable="False" Click="MenuItem_Click_file_save"/>
+            </MenuItem>
+        </Menu>
+        <Button x:Name="Building_button" Content="Building List" HorizontalAlignment="Left" Height="48" Margin="39,75,0,0" VerticalAlignment="Top" Width="140" Click="Building_Button_Click"/>
+
+    </Grid>
+</Window>

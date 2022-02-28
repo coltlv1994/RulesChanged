@@ -1,0 +1,28 @@
+﻿<Window x:Class="RulesChangedWPFNET.CategoryUnitListWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:RulesChangedWPFNET"
+        mc:Ignorable="d"
+        Title="CategoryUnitListWindow" Height="450" Width="800"
+        Closed="Window_Closed"
+        Loaded="Window_Loaded">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="25*"/>
+            <ColumnDefinition Width="7*"/>
+        </Grid.ColumnDefinitions>
+        <ScrollViewer ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Disabled" Grid.ColumnSpan="2" Margin="0,0,0,0">
+            <ListView x:Name="mainListView" MouseDoubleClick="mainListView_MouseDoubleClick" ItemsSource="{Binding TrackCollection}">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Code Name" DisplayMemberBinding="{Binding BINDING_CODENAME}" />
+                        <GridViewColumn Header="Display Name" DisplayMemberBinding="{Binding BINDING_DISPLAYNAME}"/>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </ScrollViewer>
+
+    </Grid>
+</Window>
