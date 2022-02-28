@@ -56,18 +56,11 @@ namespace RulesChangedWPFNET
 
     public partial class MainWindow : Window
     {
-        public Dictionary<string, ListItem> buildingsList = new Dictionary<string, ListItem>();
-
         private static readonly Regex sWhitespace = new Regex(@"\s\s+|\t+"); // saves for future use
 
-        string path = ".\\input_output\\buildings_test"; // global
-
         string exportPath = ".\\input_output\\results";
-
         string rulesFilePath = ".\\input_output\\rules.ini";
         int fieldsCount = 18; // The count and the ruleFilepath is fixed for rules.ini; currently we don't test on rulesmd.ini yet
-
-        string tagOutputPath = ".\\input_output\\tags_list";
 
         public Dictionary<string, GlobalProperty.SublistIndex> tagCategorizedList = new Dictionary<string, GlobalProperty.SublistIndex>();
         Dictionary<string, GlobalProperty.SublistIndex> predefinedTag = new Dictionary<string, GlobalProperty.SublistIndex>();
