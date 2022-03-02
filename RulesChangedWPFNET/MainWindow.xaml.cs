@@ -33,24 +33,14 @@ namespace RulesChangedWPFNET
 
         public enum SublistIndex
         {
-            Uncategorized,
-            Countries,
-            InfantryTypes,
-            VehicleTypes,
-            AircraftTypes,
-            BuildingTypes,
-            TerrainTypes,
-            SmudgeTypes,
-            OverlayTypes,
-            Animations,
-            VoxelAnims,
-            Particles,
-            ParticleSystems,
-            SuperWeaponTypes,
-            Warheads,
-            AIGenerals,
-            VariableNames,
-            MAX
+            InfantryTypes, //     0,
+            VehicleTypes, //      1
+            AircraftTypes, //     2
+            BuildingTypes, //     3
+            SuperWeaponTypes, //  4
+            Warheads, //          5
+            Uncategorized, //     6, it must be at the end
+            DummyTags, //         7
         }
     }
 
@@ -58,13 +48,14 @@ namespace RulesChangedWPFNET
     {
         private static readonly Regex sWhitespace = new Regex(@"\s\s+|\t+"); // saves for future use
 
+        string rulesFilePath = "";
         string exportPath = ".\\input_output\\results";
-        string rulesFilePath = ".\\input_output\\rules.ini";
-        int fieldsCount = 18; // The count and the ruleFilepath is fixed for rules.ini; currently we don't test on rulesmd.ini yet
+        int fieldsCount = (int)GlobalProperty.SublistIndex.DummyTags; 
 
         public Dictionary<string, GlobalProperty.SublistIndex> tagCategorizedList = new Dictionary<string, GlobalProperty.SublistIndex>();
         Dictionary<string, GlobalProperty.SublistIndex> predefinedTag = new Dictionary<string, GlobalProperty.SublistIndex>();
         public List<Dictionary<string, Hashtable>> dataSets = new List<Dictionary<string, Hashtable>>();
+        public List<string> dummyLinesToWrite = new List<string>();
 
         public MainWindow()
         {
@@ -78,48 +69,72 @@ namespace RulesChangedWPFNET
 
         private void MenuItem_Click_file_open(object sender, RoutedEventArgs e)
         {
-            if (GlobalProperty.FileOpened == true)
-            {
-                tagCategorizedList.Clear();
-            }
+            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
+            dlg.Filter = "RA2 rule file|rules.ini|RA2:YR rule file|rulesmd.ini";
+            dlg.Multiselect = false;
+            Nullable<bool> openFileDialogResult = dlg.ShowDialog();
 
-            if (readFromRules() == true) // file location is hardcoded, will change later.
+            if (openFileDialogResult == true)
             {
-                Building_button.IsEnabled = true;
-                Menu_file_save.IsEnabled = true;
+                // file select
+                rulesFilePath = dlg.FileName;
+                if (readFromRules() == true) 
+                {
+                    // file read success
+                    if (GlobalProperty.FileOpened == true)
+                    {
+                        // flush previously opened file
+                        tagCategorizedList.Clear();
+                        dataSets.Clear();
+                        dummyLinesToWrite.Clear();
+                    }
+                    Building_button.IsEnabled = true;
+                    Menu_file_save.IsEnabled = true;
+                    GlobalProperty.FileOpened = true;
+                }
+                else
+                {
+                    // file read fail
+                    ; // nothing happens; maybe should pop a MessageBox.
+                }
             }
             else
             {
-                Building_button.IsEnabled = false;
-                Menu_file_save.IsEnabled = false;
+                // file not select
+                // nothing happens
+                ;
             }
         }
 
         private bool readFromRules()
         {
-            Regex sWhitespace = new Regex(@"\s\s+|\t+");
+            Regex sWhitespace2 = new Regex(@"\s\s+|\t+");
+            Regex sWhitespace1 = new Regex(@"\s+");
             int semiIndex = 0;
             string currentTag = "space_holder"; // it does not have any usage
             string processedLine;
-            bool hashTableCreateIndication = false;
+            bool hashtableCreateIndication = false;
             GlobalProperty.SublistIndex currentSublistIndex = GlobalProperty.SublistIndex.Uncategorized;
             initialDataSets(fieldsCount);
 
             foreach (string line in File.ReadLines(rulesFilePath))
             {
                 if (line.Length == 0)
+                {
+                    dummyLinesToWrite.Add(line);
                     continue;
+                }
 
                 if (line[0] == ';')
                     continue;
 
                 if ((semiIndex = line.IndexOf(';')) >= 0)
                 {
-                    processedLine = sWhitespace.Replace(line.Substring(0, semiIndex), "");
+                    processedLine = sWhitespace2.Replace(line.Substring(0, semiIndex), "");
                 }
                 else
                 {
-                    processedLine = sWhitespace.Replace(line, "");
+                    processedLine = sWhitespace2.Replace(line, "");
                 }
 
                 if (processedLine == "")
@@ -129,60 +144,33 @@ namespace RulesChangedWPFNET
 
                 if (processedLine[0] == '[') // A tag
                 {
-                    currentTag = processedLine.Split('[', ']')[1]; // cut the bracket, extract the tag
-                    if (predefinedTag.ContainsKey(currentTag))
-                    {
-                        // pre-defined?  if it is pre-defined, then we change currentTag and sublistindex.
-                        currentSublistIndex = predefinedTag[currentTag];
-                        hashTableCreateIndication = true; // we are adding something to dataSets[index] in later reading.
-                        continue;
-                    }
-                    else
-                    {
-                        hashTableCreateIndication = false; // don't do that since we do not create entry<string, hashTable> here.
-                        // The tag is not pre-defined, check if it is registered
-                        if (tagCategorizedList.ContainsKey(currentTag))
-                        {
-                            // change index, continue next line
-                            currentSublistIndex = tagCategorizedList[currentTag];
-                            continue;
-                        }
-                        else
-                        {
-                            /* There is a potential bug. When code runs into here, I assume the code has finished all registration
-                             * of [BuildingTypes] and etc., however it might be incorrect since rules.ini do not force such arrangement,
-                             * i.e. you could put [BuildingTypes] after [NAPOWR] without issue.
-                             */
-                            try
-                            {
-                                /* register to tagCategorizedList; since we made above assumption, the new tag
-                                 * is: 1. not predefined; 2. not registered. It will make into uncategorized tag.
-                                 * However, we may need some change to process weapons and warheads since they
-                                 * do not need to "register" in rule files.
-                                */
-                                currentSublistIndex = GlobalProperty.SublistIndex.Uncategorized;
-                                tagCategorizedList.Add(currentTag, currentSublistIndex);
-                                dataSets[(int)currentSublistIndex].Add(currentTag, new Hashtable());
-                            }
-                            catch (Exception ex)
-                            {
-                                Console.WriteLine(ex.ToString());
-                                Console.WriteLine(processedLine);
-                            }
-                        }
-                    }
+                    tagDetectedAndTreat(processedLine,
+                                        ref hashtableCreateIndication, ref currentTag,
+                                        ref currentSublistIndex);
                 }
                 else
                 {
+                    /* This line is not a tag.
+                     * Two fields works here, hashtableCreationIndication and dummyTag.
+                     * HCI==yes and dummyTag==yes, register the tag but don't create hashtable, write to List<>;
+                     * HCI==yes and dummyTag==no, register and create, don't write to List<>;
+                     * HCI==no and dummyTag==yes, don't register and don't create, write to List<>;
+                     * HCI==no and dummytag==no, register its value and key to dataSets;
+                     */
                     // the line is not new tag, write to attributes according to currentTag and currentSublistIndex
-                    if (hashTableCreateIndication == true)
+                    if (hashtableCreateIndication == true)
                     {
                         try
                         {
-                            // we are reading "registration list" here, means we are creating key-value pair for the items of list
+                            // we are reading "registration list" here
                             string[] fields = processedLine.Split("=");
-                            tagCategorizedList.Add(fields[fields.Length - 1], currentSublistIndex);
-                            dataSets[(int)currentSublistIndex].Add(fields[fields.Length - 1], new Hashtable());
+                            string fieldWithoutWhitespace = sWhitespace1.Replace(fields[fields.Length - 1], "");
+                            tagCategorizedList.Add(fieldWithoutWhitespace, currentSublistIndex);
+                            if (currentSublistIndex != GlobalProperty.SublistIndex.DummyTags)
+                            {
+                                // dummy tags do not require any data fields
+                                dataSets[(int)currentSublistIndex].Add(fieldWithoutWhitespace, new Hashtable());
+                            }    
                         }
                         catch (Exception ex)
                         {
@@ -193,10 +181,18 @@ namespace RulesChangedWPFNET
                     }
                     else
                     {
-                        // we are reading attributes table here
-                        string[] fields = processedLine.Split("=");
-                        dataSets[(int)currentSublistIndex][currentTag][fields[0]] = fields[fields.Length - 1];
+                        if (currentSublistIndex != GlobalProperty.SublistIndex.DummyTags)
+                        {
+                            // we are reading attributes table here, dummy tags do not need read anything
+                            string[] fields = processedLine.Split("=");
+                            dataSets[(int)currentSublistIndex][currentTag][fields[0]] = fields[fields.Length - 1];
+                        }
                     }
+                }
+
+                if (currentSublistIndex == GlobalProperty.SublistIndex.DummyTags)
+                {
+                    dummyLinesToWrite.Add(processedLine);
                 }
 
             }
@@ -206,22 +202,22 @@ namespace RulesChangedWPFNET
 
         private void initialDataPrepare()
         {
-            predefinedTag.Add("Countries", GlobalProperty.SublistIndex.Countries);
+            predefinedTag.Add("Countries", GlobalProperty.SublistIndex.DummyTags);
             predefinedTag.Add("InfantryTypes", GlobalProperty.SublistIndex.InfantryTypes);
             predefinedTag.Add("VehicleTypes", GlobalProperty.SublistIndex.VehicleTypes);
             predefinedTag.Add("AircraftTypes", GlobalProperty.SublistIndex.AircraftTypes);
             predefinedTag.Add("BuildingTypes", GlobalProperty.SublistIndex.BuildingTypes);
-            predefinedTag.Add("TerrainTypes", GlobalProperty.SublistIndex.TerrainTypes);
-            predefinedTag.Add("SmudgeTypes", GlobalProperty.SublistIndex.SmudgeTypes);
-            predefinedTag.Add("OverlayTypes", GlobalProperty.SublistIndex.OverlayTypes);
-            predefinedTag.Add("Animations", GlobalProperty.SublistIndex.Animations);
-            predefinedTag.Add("VoxelAnims", GlobalProperty.SublistIndex.VoxelAnims);
-            predefinedTag.Add("Particles", GlobalProperty.SublistIndex.Particles);
-            predefinedTag.Add("ParticleSystems", GlobalProperty.SublistIndex.ParticleSystems);
+            predefinedTag.Add("TerrainTypes", GlobalProperty.SublistIndex.DummyTags);
+            predefinedTag.Add("SmudgeTypes", GlobalProperty.SublistIndex.DummyTags);
+            predefinedTag.Add("OverlayTypes", GlobalProperty.SublistIndex.DummyTags);
+            predefinedTag.Add("Animations", GlobalProperty.SublistIndex.DummyTags);
+            predefinedTag.Add("VoxelAnims", GlobalProperty.SublistIndex.DummyTags);
+            predefinedTag.Add("Particles", GlobalProperty.SublistIndex.DummyTags);
+            predefinedTag.Add("ParticleSystems", GlobalProperty.SublistIndex.DummyTags);
             predefinedTag.Add("SuperWeaponTypes", GlobalProperty.SublistIndex.SuperWeaponTypes);
             predefinedTag.Add("Warheads", GlobalProperty.SublistIndex.Warheads);
-            predefinedTag.Add("AIGenerals", GlobalProperty.SublistIndex.AIGenerals);
-            predefinedTag.Add("VariableNames", GlobalProperty.SublistIndex.VariableNames);
+            predefinedTag.Add("AIGenerals", GlobalProperty.SublistIndex.DummyTags);
+            predefinedTag.Add("VariableNames", GlobalProperty.SublistIndex.DummyTags);
         }
 
         private void initialDataSets(int fc)
@@ -231,6 +227,57 @@ namespace RulesChangedWPFNET
             {
                 dataSets.Add(new Dictionary<string, Hashtable>());
             }
+        }
+
+        // explicitly require the boolean values pass-by-reference
+        private bool tagDetectedAndTreat(string inputLine, ref bool hashtableCreationMode,
+                                         ref string newTag, ref GlobalProperty.SublistIndex newTagIndex)
+        {
+            newTag = inputLine.Split('[', ']')[1]; // cut the bracket, extract the tag
+            if (predefinedTag.ContainsKey(newTag))
+            {
+                // If it is pre-defined, which means we hit to a list that requires to be registered.
+                // However, some dummy tags in certain list require registration otherwise uncategorized list is too large and unwanted.
+                newTagIndex = predefinedTag[newTag];
+                hashtableCreationMode = true; // we are adding something to dataSets[index] in later reading.
+                return true;
+             }
+            else
+            {
+                hashtableCreationMode = false; // don't do that since we do not create entry<string, hashTable> here.
+                                               // The tag is not pre-defined, check if it is registered
+                if (tagCategorizedList.ContainsKey(newTag))
+                {
+                    // change index, continue next line
+                    newTagIndex = tagCategorizedList[newTag];
+                    return true;
+                }
+                else
+                {
+                    /* There is a potential bug. When code runs into here, I assume the code has finished all registration
+                     * of [BuildingTypes] and etc., however it might be incorrect since rules.ini do not force such arrangement,
+                     * i.e. you could put [BuildingTypes] after [NAPOWR] without issue.
+                     */
+                    try
+                    {
+                        /* register to tagCategorizedList; since we made above assumption, the new tag
+                         * is: 1. not predefined; 2. not registered. It will make into uncategorized tag and must create Hashtable here.
+                         * However, we may need some change to process projectiles and weapons since they
+                         * do not need to "register" in rule files.
+                        */
+                        newTagIndex = GlobalProperty.SublistIndex.Uncategorized;
+                        tagCategorizedList.Add(newTag, newTagIndex);
+                        dataSets[(int)newTagIndex].Add(newTag, new Hashtable());
+                        return true;
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                        Console.WriteLine(inputLine);
+                    }
+                }
+            }
+            return true;
         }
 
         private void MenuItem_Click_file_save(object sender, RoutedEventArgs e)
@@ -244,6 +291,45 @@ namespace RulesChangedWPFNET
 
             // write first tag, [BuildingTypes]
             StreamWriter sw = new StreamWriter(exportPath, true, Encoding.ASCII);
+            List<string> appendixList = new List<string>();
+
+            // Write dummy lines first
+            foreach (string line in dummyLinesToWrite)
+            {
+                sw.WriteLine(line);
+            }
+
+            // and write datasets registration list, uncategorized list must be treated last
+            for (int i = 0; i < dataSets.Count - 1; i++)
+            {
+                sw.WriteLine("["+Enum.GetName(typeof(GlobalProperty.SublistIndex), i)+"]");
+                int j = 1;
+                foreach (KeyValuePair<string, Hashtable> item in dataSets[i])
+                {
+                    sw.WriteLine(j.ToString() + "=" + item.Key);
+                    appendixList.Add("[" + item.Key + "]");
+                    foreach (DictionaryEntry entry in item.Value)
+                    {
+                        appendixList.Add((string)entry.Key + "=" + (string)entry.Value);
+                    }
+                    j++;
+                }
+            }
+
+            foreach (KeyValuePair<string, Hashtable> item in dataSets[dataSets.Count - 1])
+            {
+                appendixList.Add("[" + item.Key + "]");
+                foreach (DictionaryEntry entry in item.Value)
+                {
+                    appendixList.Add((string)entry.Key + "=" + (string)entry.Value);
+                }
+            }
+
+            foreach (string finalWrite in appendixList)
+            {
+                sw.WriteLine(finalWrite);
+            }
+
             sw.Close();
 
         }
