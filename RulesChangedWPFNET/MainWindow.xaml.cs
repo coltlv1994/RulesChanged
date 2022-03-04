@@ -49,8 +49,8 @@ namespace RulesChangedWPFNET
         private static readonly Regex sWhitespace = new Regex(@"\s\s+|\t+"); // saves for future use
 
         string rulesFilePath = "";
-        string exportPath = ".\\input_output\\results";
-        int fieldsCount = (int)GlobalProperty.SublistIndex.DummyTags; 
+        string exportPath = ".\\output\\results";
+        int fieldsCount = (int)GlobalProperty.SublistIndex.DummyTags;
 
         public Dictionary<string, GlobalProperty.SublistIndex> tagCategorizedList = new Dictionary<string, GlobalProperty.SublistIndex>();
         Dictionary<string, GlobalProperty.SublistIndex> predefinedTag = new Dictionary<string, GlobalProperty.SublistIndex>();
@@ -78,7 +78,7 @@ namespace RulesChangedWPFNET
             {
                 // file select
                 rulesFilePath = dlg.FileName;
-                if (readFromRules() == true) 
+                if (readFromRules() == true)
                 {
                     // file read success
                     if (GlobalProperty.FileOpened == true)
@@ -126,7 +126,9 @@ namespace RulesChangedWPFNET
                 }
 
                 if (line[0] == ';')
+                {
                     continue;
+                }
 
                 if ((semiIndex = line.IndexOf(';')) >= 0)
                 {
@@ -170,7 +172,7 @@ namespace RulesChangedWPFNET
                             {
                                 // dummy tags do not require any data fields
                                 dataSets[(int)currentSublistIndex].Add(fieldWithoutWhitespace, new Hashtable());
-                            }    
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -241,7 +243,7 @@ namespace RulesChangedWPFNET
                 newTagIndex = predefinedTag[newTag];
                 hashtableCreationMode = true; // we are adding something to dataSets[index] in later reading.
                 return true;
-             }
+            }
             else
             {
                 hashtableCreationMode = false; // don't do that since we do not create entry<string, hashTable> here.
@@ -302,17 +304,20 @@ namespace RulesChangedWPFNET
             // and write datasets registration list, uncategorized list must be treated last
             for (int i = 0; i < dataSets.Count - 1; i++)
             {
-                sw.WriteLine("["+Enum.GetName(typeof(GlobalProperty.SublistIndex), i)+"]");
+                sw.WriteLine("[" + Enum.GetName(typeof(GlobalProperty.SublistIndex), i) + "]");
                 int j = 1;
                 foreach (KeyValuePair<string, Hashtable> item in dataSets[i])
                 {
                     sw.WriteLine(j.ToString() + "=" + item.Key);
-                    appendixList.Add("[" + item.Key + "]");
-                    foreach (DictionaryEntry entry in item.Value)
-                    {
-                        appendixList.Add((string)entry.Key + "=" + (string)entry.Value);
-                    }
                     j++;
+                    if (item.Value.Count != 0)
+                    {
+                        appendixList.Add("[" + item.Key + "]");
+                        foreach (DictionaryEntry entry in item.Value)
+                        {
+                            appendixList.Add((string)entry.Key + "=" + (string)entry.Value);
+                        }
+                    }
                 }
             }
 
