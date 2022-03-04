@@ -18,6 +18,12 @@
             </MenuItem>
         </Menu>
         <Button x:Name="Building_button" Content="Building List" HorizontalAlignment="Left" Height="48" Margin="39,75,0,0" VerticalAlignment="Top" Width="140" Click="Building_Button_Click"/>
+        <Button x:Name="Infantry_button" Content="Infantry List" HorizontalAlignment="Left" Height="48" Margin="39,150,0,0" VerticalAlignment="Top" Width="140" Click="Infantry_button_Click"/>
+        <Button x:Name="Vehicle_button" Content="Vehicle List" HorizontalAlignment="Left" Height="48" Margin="39,226,0,0" VerticalAlignment="Top" Width="140" Click="Vehicle_button_Click"/>
+        <Button x:Name="Aircraft_button" Content="Aircraft List" HorizontalAlignment="Left" Height="48" Margin="39,305,0,0" VerticalAlignment="Top" Width="140" Click="Aircraft_button_Click"/>
+        <Button x:Name="Super_weapon_button" Content="Super Weapon List" HorizontalAlignment="Left" Height="48" Margin="213,75,0,0" VerticalAlignment="Top" Width="140" Click="Super_weapon_button_Click"/>
+        <Button x:Name="Warheads_button" Content="Warheads List" HorizontalAlignment="Left" Height="48" Margin="213,150,0,0" VerticalAlignment="Top" Width="140" Click="Warheads_button_Click"/>
+        <Button x:Name="Uncategorized_button" Content="Uncategorized List" HorizontalAlignment="Left" Height="48" Margin="213,226,0,0" VerticalAlignment="Top" Width="140" Click="Uncategorized_button_Click"/>
 
     </Grid>
 </Window>

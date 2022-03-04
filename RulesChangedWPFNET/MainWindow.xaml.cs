@@ -60,10 +60,10 @@ namespace RulesChangedWPFNET
         public MainWindow()
         {
             InitializeComponent();
-            Building_button.IsEnabled = false;
             Menu_file_save.IsEnabled = false;
             GlobalProperty.FileChanged = false;
             GlobalProperty.FileOpened = false;
+            disable_buttons();
             initialDataPrepare(); // may need to change to file_open() for rulesmd.ini
         }
 
@@ -88,7 +88,7 @@ namespace RulesChangedWPFNET
                         dataSets.Clear();
                         dummyLinesToWrite.Clear();
                     }
-                    Building_button.IsEnabled = true;
+                    enable_buttons();
                     Menu_file_save.IsEnabled = true;
                     GlobalProperty.FileOpened = true;
                 }
@@ -289,7 +289,16 @@ namespace RulesChangedWPFNET
              */
 
             // flush the file in exportPath
-            File.Delete(exportPath);
+
+            Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+            dlg.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            dlg.ShowDialog();
+
+            string exportPath = dlg.FileName;
+            if (exportPath == null)
+            {
+                return;
+            }
 
             // write first tag, [BuildingTypes]
             StreamWriter sw = new StreamWriter(exportPath, true, Encoding.ASCII);
@@ -341,7 +350,7 @@ namespace RulesChangedWPFNET
 
         private void Building_Button_Click(object sender, RoutedEventArgs e)
         {
-            Open_New_Window(GlobalProperty.SublistIndex.Uncategorized);
+            Open_New_Window(GlobalProperty.SublistIndex.BuildingTypes);
         }
 
         private void Open_New_Window(GlobalProperty.SublistIndex categoryIndex)
@@ -351,5 +360,56 @@ namespace RulesChangedWPFNET
             this.Hide();
         }
 
+        private void Infantry_button_Click(object sender, RoutedEventArgs e)
+        {
+            Open_New_Window(GlobalProperty.SublistIndex.InfantryTypes);
+        }
+
+        private void Vehicle_button_Click(object sender, RoutedEventArgs e)
+        {
+            Open_New_Window(GlobalProperty.SublistIndex.VehicleTypes);
+        }
+
+        private void Aircraft_button_Click(object sender, RoutedEventArgs e)
+        {
+            Open_New_Window(GlobalProperty.SublistIndex.AircraftTypes);
+        }
+
+        private void Super_weapon_button_Click(object sender, RoutedEventArgs e)
+        {
+            Open_New_Window(GlobalProperty.SublistIndex.SuperWeaponTypes);
+        }
+
+        private void Warheads_button_Click(object sender, RoutedEventArgs e)
+        {
+            Open_New_Window(GlobalProperty.SublistIndex.Warheads);
+        }
+
+        private void Uncategorized_button_Click(object sender, RoutedEventArgs e)
+        {
+            Open_New_Window(GlobalProperty.SublistIndex.Uncategorized);
+        }
+
+        private void disable_buttons()
+        {
+            Building_button.IsEnabled = false;
+            Infantry_button.IsEnabled = false;
+            Vehicle_button.IsEnabled = false;
+            Aircraft_button.IsEnabled = false;
+            Super_weapon_button.IsEnabled = false;
+            Warheads_button.IsEnabled = false;
+            Uncategorized_button.IsEnabled = false;
+        }
+
+        private void enable_buttons()
+        {
+            Building_button.IsEnabled = true;
+            Infantry_button.IsEnabled = true;
+            Vehicle_button.IsEnabled = true;
+            Aircraft_button.IsEnabled = true;
+            Super_weapon_button.IsEnabled = true;
+            Warheads_button.IsEnabled = true;
+            Uncategorized_button.IsEnabled = true;
+        }
     }
 }
