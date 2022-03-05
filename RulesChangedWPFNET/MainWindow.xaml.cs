@@ -189,7 +189,7 @@ namespace RulesChangedWPFNET
                         {
                             // we are reading attributes table here, dummy tags do not need read anything
                             string[] fields = processedLine.Split("=");
-                            dataSets[(int)currentSublistIndex][currentTag][fields[0]] = fields[fields.Length - 1];
+                            dataSets[(int)currentSublistIndex][currentTag][fields[0]] = sWhitespace1.Replace(fields[fields.Length - 1], "");
                         }
                     }
                 }
