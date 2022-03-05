@@ -12,6 +12,7 @@
 [Ii]nput/
 [Oo]utput/
 [Pp]roperties/
+.vscode/
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

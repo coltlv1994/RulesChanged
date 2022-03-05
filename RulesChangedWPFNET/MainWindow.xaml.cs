@@ -38,8 +38,11 @@ namespace RulesChangedWPFNET
             AircraftTypes, //     2
             BuildingTypes, //     3
             Warheads, //          4
-            Uncategorized, //     5, it must be at the end
-            DummyTags, //         6
+            DummyTags,  //        5
+            Projectiles, //       6
+            Weapons, //           7
+            Uncategorized, //     8, it must be at the end
+            MAX //                9
         }
     }
 
@@ -48,8 +51,8 @@ namespace RulesChangedWPFNET
         private static readonly Regex sWhitespace = new Regex(@"\s\s+|\t+"); // saves for future use
 
         string rulesFilePath = "";
-        string exportPath = ".\\output\\results";
-        int fieldsCount = (int)GlobalProperty.SublistIndex.DummyTags;
+        string uncategorizedTagExportPath = ".\\output\\uncategorized_tags";
+        int fieldsCount = ((int)GlobalProperty.SublistIndex.MAX); //Dummy tags do not need any field.
 
         public Dictionary<string, GlobalProperty.SublistIndex> tagCategorizedList = new Dictionary<string, GlobalProperty.SublistIndex>();
         Dictionary<string, GlobalProperty.SublistIndex> predefinedTag = new Dictionary<string, GlobalProperty.SublistIndex>();
@@ -198,6 +201,9 @@ namespace RulesChangedWPFNET
 
             }
 
+            // Post process
+            postprocessUncategorized();
+
             return true;
         }
 
@@ -300,7 +306,7 @@ namespace RulesChangedWPFNET
             }
 
             // write first tag, [BuildingTypes]
-            StreamWriter sw = new StreamWriter(exportPath, true, Encoding.ASCII);
+            StreamWriter sw = new StreamWriter(exportPath, false, Encoding.ASCII);
             List<string> appendixList = new List<string>();
 
             // Write dummy lines first
@@ -309,12 +315,15 @@ namespace RulesChangedWPFNET
                 sw.WriteLine(line);
             }
 
-            // and write datasets registration list, uncategorized list must be treated last
-            for (int i = 0; i < dataSets.Count - 1; i++)
+            // and write datasets registration list.
+            // Weapons and projectiles have no registration list, along side uncategorized list, they must be treated last
+            int nonRegisteredListIndex = (int)GlobalProperty.SublistIndex.DummyTags; // 
+            int loopIndex;
+            for (loopIndex = 0; loopIndex < nonRegisteredListIndex; loopIndex++)
             {
-                sw.WriteLine("[" + Enum.GetName(typeof(GlobalProperty.SublistIndex), i) + "]");
+                sw.WriteLine("[" + Enum.GetName(typeof(GlobalProperty.SublistIndex), loopIndex) + "]");
                 int j = 1;
-                foreach (KeyValuePair<string, Hashtable> item in dataSets[i])
+                foreach (KeyValuePair<string, Hashtable> item in dataSets[loopIndex])
                 {
                     sw.WriteLine(j.ToString() + "=" + item.Key);
                     j++;
@@ -329,12 +338,17 @@ namespace RulesChangedWPFNET
                 }
             }
 
-            foreach (KeyValuePair<string, Hashtable> item in dataSets[dataSets.Count - 1])
+            loopIndex += 1; // Jump over "dummyTag"
+
+            for (; loopIndex < (int)GlobalProperty.SublistIndex.MAX; loopIndex++)
             {
-                appendixList.Add("[" + item.Key + "]");
-                foreach (DictionaryEntry entry in item.Value)
+                foreach (KeyValuePair<string, Hashtable> item in dataSets[loopIndex])
                 {
-                    appendixList.Add((string)entry.Key + "=" + (string)entry.Value);
+                    appendixList.Add("[" + item.Key + "]");
+                    foreach (DictionaryEntry entry in item.Value)
+                    {
+                        appendixList.Add((string)entry.Key + "=" + (string)entry.Value);
+                    }
                 }
             }
 
@@ -344,6 +358,14 @@ namespace RulesChangedWPFNET
             }
 
             sw.Close();
+
+            // write uncategorized tags for debugging
+            StreamWriter swUCT = new StreamWriter(uncategorizedTagExportPath, false, Encoding.ASCII);
+            foreach (KeyValuePair<string, Hashtable> item in dataSets[(int)GlobalProperty.SublistIndex.Uncategorized])
+            {
+                swUCT.WriteLine(item.Key);
+            }
+            swUCT.Close();
 
         }
 
@@ -402,6 +424,52 @@ namespace RulesChangedWPFNET
             Aircraft_button.IsEnabled = true;
             Warheads_button.IsEnabled = true;
             Uncategorized_button.IsEnabled = true;
+        }
+
+        private void postprocessUncategorized()
+        {
+            // Post-process of uncategorized tags, put them into "weapons" and "projectiles"
+            foreach (KeyValuePair<string, Hashtable> item in dataSets[(int)GlobalProperty.SublistIndex.Uncategorized])
+            {
+                if (item.Value.ContainsKey("Warhead"))
+                {
+                    tagCategorizedList[item.Key] = GlobalProperty.SublistIndex.Weapons;
+                    dataSets[(int)GlobalProperty.SublistIndex.Weapons].Add(item.Key, item.Value);
+                    dataSets[(int)GlobalProperty.SublistIndex.Uncategorized].Remove(item.Key);
+
+                    try
+                    {
+                        string projectileName = (string)item.Value["Projectile"];
+                        if (!string.IsNullOrEmpty(projectileName))
+                        {
+                            // non empty projectile field
+                            if (tagCategorizedList[projectileName] != GlobalProperty.SublistIndex.Projectiles)
+                            {
+                                // not registered before
+                                tagCategorizedList[projectileName] = GlobalProperty.SublistIndex.Projectiles;
+                                dataSets[(int)GlobalProperty.SublistIndex.Projectiles].Add(projectileName, (dataSets[(int)GlobalProperty.SublistIndex.Uncategorized])[projectileName]);
+                                dataSets[(int)GlobalProperty.SublistIndex.Uncategorized].Remove(projectileName);
+                            }
+                        }
+
+
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                    }
+                }
+            }
+        }
+
+        private void Weapons_button_Click(object sender, RoutedEventArgs e)
+        {
+            Open_New_Window(GlobalProperty.SublistIndex.Weapons);
+        }
+
+        private void Projectiles_button_Click(object sender, RoutedEventArgs e)
+        {
+            Open_New_Window(GlobalProperty.SublistIndex.Projectiles);
         }
     }
 }
