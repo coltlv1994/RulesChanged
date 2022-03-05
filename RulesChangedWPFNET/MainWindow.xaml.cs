@@ -37,10 +37,9 @@ namespace RulesChangedWPFNET
             VehicleTypes, //      1
             AircraftTypes, //     2
             BuildingTypes, //     3
-            SuperWeaponTypes, //  4
-            Warheads, //          5
-            Uncategorized, //     6, it must be at the end
-            DummyTags, //         7
+            Warheads, //          4
+            Uncategorized, //     5, it must be at the end
+            DummyTags, //         6
         }
     }
 
@@ -76,18 +75,18 @@ namespace RulesChangedWPFNET
 
             if (openFileDialogResult == true)
             {
+                // flush previously opened file
+                tagCategorizedList.Clear();
+                dataSets.Clear();
+                dummyLinesToWrite.Clear();
+                // As per instructions on the forum, some hard-coded fields must be treated as "dummy"
+                tagCategorizedList.Add("Colors", GlobalProperty.SublistIndex.DummyTags);
+                tagCategorizedList.Add("Sides", GlobalProperty.SublistIndex.DummyTags);
+
                 // file select
                 rulesFilePath = dlg.FileName;
                 if (readFromRules() == true)
                 {
-                    // file read success
-                    if (GlobalProperty.FileOpened == true)
-                    {
-                        // flush previously opened file
-                        tagCategorizedList.Clear();
-                        dataSets.Clear();
-                        dummyLinesToWrite.Clear();
-                    }
                     enable_buttons();
                     Menu_file_save.IsEnabled = true;
                     GlobalProperty.FileOpened = true;
@@ -216,7 +215,7 @@ namespace RulesChangedWPFNET
             predefinedTag.Add("VoxelAnims", GlobalProperty.SublistIndex.DummyTags);
             predefinedTag.Add("Particles", GlobalProperty.SublistIndex.DummyTags);
             predefinedTag.Add("ParticleSystems", GlobalProperty.SublistIndex.DummyTags);
-            predefinedTag.Add("SuperWeaponTypes", GlobalProperty.SublistIndex.SuperWeaponTypes);
+            predefinedTag.Add("SuperWeaponTypes", GlobalProperty.SublistIndex.DummyTags);
             predefinedTag.Add("Warheads", GlobalProperty.SublistIndex.Warheads);
             predefinedTag.Add("AIGenerals", GlobalProperty.SublistIndex.DummyTags);
             predefinedTag.Add("VariableNames", GlobalProperty.SublistIndex.DummyTags);
@@ -375,11 +374,6 @@ namespace RulesChangedWPFNET
             Open_New_Window(GlobalProperty.SublistIndex.AircraftTypes);
         }
 
-        private void Super_weapon_button_Click(object sender, RoutedEventArgs e)
-        {
-            Open_New_Window(GlobalProperty.SublistIndex.SuperWeaponTypes);
-        }
-
         private void Warheads_button_Click(object sender, RoutedEventArgs e)
         {
             Open_New_Window(GlobalProperty.SublistIndex.Warheads);
@@ -396,7 +390,6 @@ namespace RulesChangedWPFNET
             Infantry_button.IsEnabled = false;
             Vehicle_button.IsEnabled = false;
             Aircraft_button.IsEnabled = false;
-            Super_weapon_button.IsEnabled = false;
             Warheads_button.IsEnabled = false;
             Uncategorized_button.IsEnabled = false;
         }
@@ -407,7 +400,6 @@ namespace RulesChangedWPFNET
             Infantry_button.IsEnabled = true;
             Vehicle_button.IsEnabled = true;
             Aircraft_button.IsEnabled = true;
-            Super_weapon_button.IsEnabled = true;
             Warheads_button.IsEnabled = true;
             Uncategorized_button.IsEnabled = true;
         }
