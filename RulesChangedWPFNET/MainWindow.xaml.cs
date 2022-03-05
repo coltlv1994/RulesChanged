@@ -414,6 +414,8 @@ namespace RulesChangedWPFNET
             Aircraft_button.IsEnabled = false;
             Warheads_button.IsEnabled = false;
             Uncategorized_button.IsEnabled = false;
+            Projectiles_button.IsEnabled = false;
+            Weapons_button.IsEnabled = false;
         }
 
         private void enable_buttons()
@@ -424,6 +426,8 @@ namespace RulesChangedWPFNET
             Aircraft_button.IsEnabled = true;
             Warheads_button.IsEnabled = true;
             Uncategorized_button.IsEnabled = true;
+            Projectiles_button.IsEnabled = true;
+            Weapons_button.IsEnabled = true;
         }
 
         private void postprocessUncategorized()
