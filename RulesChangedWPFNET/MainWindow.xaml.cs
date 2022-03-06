@@ -85,6 +85,7 @@ namespace RulesChangedWPFNET
                 // As per instructions on the forum, some hard-coded fields must be treated as "dummy"
                 tagCategorizedList.Add("Colors", GlobalProperty.SublistIndex.DummyTags);
                 tagCategorizedList.Add("Sides", GlobalProperty.SublistIndex.DummyTags);
+                tagCategorizedList.Add("ColorAdd", GlobalProperty.SublistIndex.DummyTags);
 
                 // file select
                 rulesFilePath = dlg.FileName;
@@ -201,7 +202,7 @@ namespace RulesChangedWPFNET
 
             }
 
-            // Post process
+            // Post process, for weapons and projectiles.
             postprocessUncategorized();
 
             return true;
@@ -440,6 +441,21 @@ namespace RulesChangedWPFNET
                     tagCategorizedList[item.Key] = GlobalProperty.SublistIndex.Weapons;
                     dataSets[(int)GlobalProperty.SublistIndex.Weapons].Add(item.Key, item.Value);
                     dataSets[(int)GlobalProperty.SublistIndex.Uncategorized].Remove(item.Key);
+                    /* This could be tricky. V3 and dreadnought (and some other rocket launchers) use "Warhead=Special";
+                     * and other unit like Kirov Airship, use BlimpBombE as ElitePrimay, however, this weapon
+                     * uses warhead KTSTLEXP, which collides with an entry in [Animations]: 914=KTSTLEXP.
+                     * NOTE: Kirov Airship use BlimpBomb as Primary and it has warhead of BlimpHE, no issue here.
+                     */
+                    string warheadName = (string)item.Value["Warhead"];
+                    if (!string.IsNullOrEmpty(warheadName) && warheadName != "Special")
+                    {
+                        if (tagCategorizedList[warheadName] != GlobalProperty.SublistIndex.Warheads)
+                        {
+                            tagCategorizedList[warheadName] = GlobalProperty.SublistIndex.Warheads;
+                            dataSets[(int)GlobalProperty.SublistIndex.Warheads].Add(warheadName, (dataSets[(int)GlobalProperty.SublistIndex.Uncategorized])[warheadName]);
+                            dataSets[(int)GlobalProperty.SublistIndex.Uncategorized].Remove(warheadName);
+                        }
+                    }
 
                     try
                     {
