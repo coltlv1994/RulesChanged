@@ -54,7 +54,7 @@ namespace RulesChangedWPFNET
         string uncategorizedTagExportPath = ".\\output\\uncategorized_tags";
         int fieldsCount = ((int)GlobalProperty.SublistIndex.MAX); //Dummy tags do not need any field.
 
-        public Dictionary<string, GlobalProperty.SublistIndex> tagCategorizedList = new Dictionary<string, GlobalProperty.SublistIndex>();
+        public Dictionary<string, GlobalProperty.SublistIndex> tagCategorizedList = new();
         Dictionary<string, GlobalProperty.SublistIndex> predefinedTag = new Dictionary<string, GlobalProperty.SublistIndex>();
         public List<Dictionary<string, Hashtable>> dataSets = new List<Dictionary<string, Hashtable>>();
         public List<string> dummyLinesToWrite = new List<string>();
@@ -190,7 +190,15 @@ namespace RulesChangedWPFNET
                         {
                             // we are reading attributes table here, dummy tags do not need read anything
                             string[] fields = processedLine.Split("=");
-                            dataSets[(int)currentSublistIndex][currentTag][fields[0]] = sWhitespace1.Replace(fields[fields.Length - 1], "");
+                            if (fields[0] == "Name")
+                            {
+                                dataSets[(int)currentSublistIndex][currentTag][fields[0]] = fields[fields.Length - 1];
+                            }
+                            else
+                            {
+                                dataSets[(int)currentSublistIndex][currentTag][fields[0]] = sWhitespace1.Replace(fields[fields.Length - 1], "");
+                            }
+                            
                         }
                     }
                 }
@@ -377,7 +385,7 @@ namespace RulesChangedWPFNET
 
         private void Open_New_Window(GlobalProperty.SublistIndex categoryIndex)
         {
-            CategoryUnitListWindow newWindow = new CategoryUnitListWindow(dataSets[(int)categoryIndex], this);
+            CategoryUnitListWindow newWindow = new CategoryUnitListWindow(categoryIndex, this);
             newWindow.Show();
             this.Hide();
         }

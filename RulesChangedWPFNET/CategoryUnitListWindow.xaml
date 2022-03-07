@@ -13,8 +13,9 @@
             <ColumnDefinition Width="25*"/>
             <ColumnDefinition Width="7*"/>
         </Grid.ColumnDefinitions>
-        <ScrollViewer ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Disabled" Grid.ColumnSpan="2" Margin="0,0,0,0">
-            <ListView x:Name="mainListView" MouseDoubleClick="mainListView_MouseDoubleClick" ItemsSource="{Binding TrackCollection}">
+        <ScrollViewer ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Disabled" Grid.ColumnSpan="2" Margin="0,20
+                      ,0,0">
+            <ListView x:Name="mainListView" MouseDoubleClick="mainListView_MouseDoubleClick" Height="404">
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header="Code Name" DisplayMemberBinding="{Binding BINDING_CODENAME}" />
@@ -23,6 +24,8 @@
                 </ListView.View>
             </ListView>
         </ScrollViewer>
+        <Label Content="Search: " HorizontalAlignment="Left" VerticalAlignment="Top" Height="25"/>
+        <TextBox x:Name="SearchBox" HorizontalAlignment="Left" Margin="51,0,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="121" Height="20" TextChanged="SearchBox_TextChanged"/>
 
     </Grid>
 </Window>
