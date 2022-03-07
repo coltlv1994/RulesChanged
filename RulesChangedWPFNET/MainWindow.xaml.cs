@@ -445,6 +445,8 @@ namespace RulesChangedWPFNET
                      * and other unit like Kirov Airship, use BlimpBombE as ElitePrimay, however, this weapon
                      * uses warhead KTSTLEXP, which collides with an entry in [Animations]: 914=KTSTLEXP.
                      * NOTE: Kirov Airship use BlimpBomb as Primary and it has warhead of BlimpHE, no issue here.
+                     * NOTE2: Based on the work of Mamamia of ra2diy.com, I changed warhead of Kirov's ElitePrimary to
+                     *        [KTSTLEXPWH], which will avoid naming collision.
                      */
                     string warheadName = (string)item.Value["Warhead"];
                     if (!string.IsNullOrEmpty(warheadName) && warheadName != "Special")
