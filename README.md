@@ -29,8 +29,14 @@ Intel Core i9-9900K, 32GB RAM,
 Windows 10 21H2, Visual Studio 2022,
 .NET 6, WPF 
 
+## 第三方资源使用
+1. 红警DIY论坛Mamamia自制的INIs for Modders，基于原版改进，原文链接：https://bbs.ra2diy.com/forum.php?mod=viewthread&tid=17506 。作者在其提供的rulesmd.ini基础上略有改动并作为基础范本。
+
 ## 联系方式
 colt.github@outlook.com
+
+特别提醒：在未得到原作者明确同意之前，不会上传第三方资源。
+
 
 # RulesChanged - Red Alert 2 rules.ini/rulesmd.ini GUI editor
 
@@ -64,5 +70,10 @@ Intel Core i9-9900K, 32GB RAM,
 Windows 10 21H2, Visual Studio 2022,
 .NET 6, WPF
 
+## Use of third-party resources
+1. INIs for Modders, a self-made and improved version of original ini files from Mamamia of RA2DIY.com, link to original work: https://bbs.ra2diy.com/forum.php?mod=viewthread&tid=17506
+
 ## Contact me
 Email: colt.github@outlook.com
+
+PS: Without explicit approval from authors, no third-party resources will be uploaded.
