@@ -51,6 +51,7 @@ namespace RulesChangedWPFNET
         private static readonly Regex sWhitespace = new Regex(@"\s\s+|\t+"); // saves for future use
 
         string rulesFilePath = "";
+        string exportPath = "";
         string uncategorizedTagExportPath = ".\\output\\uncategorized_tags";
         int fieldsCount = ((int)GlobalProperty.SublistIndex.MAX); //Dummy tags do not need any field.
 
@@ -67,47 +68,50 @@ namespace RulesChangedWPFNET
             GlobalProperty.FileOpened = false;
             disable_buttons();
             initialDataPrepare(); // may need to change to file_open() for rulesmd.ini
+            DEBUG_command_line_arguments();
         }
 
         private void MenuItem_Click_file_open(object sender, RoutedEventArgs e)
         {
-            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
-            dlg.Filter = "RA2 rule file|rules.ini|RA2:YR rule file|rulesmd.ini";
-            dlg.Multiselect = false;
-            Nullable<bool> openFileDialogResult = dlg.ShowDialog();
-
-            if (openFileDialogResult == true)
+            Nullable<bool> openFileDialogResult;
+            if (rulesFilePath == "")
             {
-                // flush previously opened file
-                tagCategorizedList.Clear();
-                dataSets.Clear();
-                dummyLinesToWrite.Clear();
-                // As per instructions on the forum, some hard-coded fields must be treated as "dummy"
-                tagCategorizedList.Add("Colors", GlobalProperty.SublistIndex.DummyTags);
-                tagCategorizedList.Add("Sides", GlobalProperty.SublistIndex.DummyTags);
-                tagCategorizedList.Add("ColorAdd", GlobalProperty.SublistIndex.DummyTags);
-
-                // file select
-                rulesFilePath = dlg.FileName;
-                if (readFromRules() == true)
+                Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
+                dlg.Filter = "RA2 rule file|rules.ini|RA2:YR rule file|rulesmd.ini";
+                dlg.Multiselect = false;
+                openFileDialogResult = dlg.ShowDialog();
+                if (openFileDialogResult == true)
                 {
-                    enable_buttons();
-                    Menu_file_save.IsEnabled = true;
-                    GlobalProperty.FileOpened = true;
+                    rulesFilePath = dlg.FileName;
                 }
                 else
                 {
-                    // file read fail
-                    ; // nothing happens; maybe should pop a MessageBox.
+                    return;
                 }
+            }
+
+            // flush previously opened file
+            tagCategorizedList.Clear();
+            dataSets.Clear();
+            dummyLinesToWrite.Clear();
+            // As per instructions on the forum, some hard-coded fields must be treated as "dummy"
+            tagCategorizedList.Add("Colors", GlobalProperty.SublistIndex.DummyTags);
+            tagCategorizedList.Add("Sides", GlobalProperty.SublistIndex.DummyTags);
+            tagCategorizedList.Add("ColorAdd", GlobalProperty.SublistIndex.DummyTags);
+
+            if (readFromRules() == true)
+            {
+                enable_buttons();
+                Menu_file_save.IsEnabled = true;
+                GlobalProperty.FileOpened = true;
             }
             else
             {
-                // file not select
-                // nothing happens
-                ;
+                // file read fail
+                ; // nothing happens; maybe should pop a MessageBox.
             }
         }
+
 
         private bool readFromRules()
         {
@@ -298,20 +302,17 @@ namespace RulesChangedWPFNET
 
         private void MenuItem_Click_file_save(object sender, RoutedEventArgs e)
         {
-            /* Write the contents back to the file.
-             * However, for debugging purpose, we will write to a separate file.
-             */
-
-            // flush the file in exportPath
-
-            Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
-            dlg.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            dlg.ShowDialog();
-
-            string exportPath = dlg.FileName;
-            if (exportPath == null)
+            if (exportPath == "")
             {
-                return;
+                Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+                dlg.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                dlg.ShowDialog();
+
+                exportPath = dlg.FileName;
+                if (exportPath == "")
+                {
+                    return;
+                }
             }
 
             // write first tag, [BuildingTypes]
@@ -500,6 +501,19 @@ namespace RulesChangedWPFNET
         private void Projectiles_button_Click(object sender, RoutedEventArgs e)
         {
             Open_New_Window(GlobalProperty.SublistIndex.Projectiles);
+        }
+
+        private void DEBUG_command_line_arguments()
+        {
+            /* Using following command line arguments
+             * debug openfile <PATH_TO_OPEN> savefile <PATH_TO_SAVE>
+             */
+            string[] args = Environment.GetCommandLineArgs();
+            if (args[1] == "debug")
+            {
+                rulesFilePath = args[3];
+                exportPath = args[5];
+            }
         }
     }
 }

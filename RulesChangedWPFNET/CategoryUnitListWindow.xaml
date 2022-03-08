@@ -10,11 +10,10 @@
         Loaded="Window_Loaded">
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="25*"/>
-            <ColumnDefinition Width="7*"/>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="0*"/>
         </Grid.ColumnDefinitions>
-        <ScrollViewer ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Disabled" Grid.ColumnSpan="2" Margin="0,20
-                      ,0,0">
+        <ScrollViewer ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Disabled" Margin="0,20,0,0">
             <ListView x:Name="mainListView" MouseDoubleClick="mainListView_MouseDoubleClick" Height="404">
                 <ListView.View>
                     <GridView>
@@ -24,8 +23,9 @@
                 </ListView.View>
             </ListView>
         </ScrollViewer>
-        <Label Content="Search: " HorizontalAlignment="Left" VerticalAlignment="Top" Height="25"/>
-        <TextBox x:Name="SearchBox" HorizontalAlignment="Left" Margin="51,0,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="121" Height="20" TextChanged="SearchBox_TextChanged"/>
+        <TextBox x:Name="SearchBox" HorizontalAlignment="Left" Margin="308,0,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="121" Height="20"  MaxLines="1" TextChanged="SearchBox_TextChanged"/>
+        <RadioButton x:Name="RadioButton_displayname" Content="Search Display Name" HorizontalAlignment="Left" Margin="172,5,0,0" VerticalAlignment="Top" Height="15" Width="131" Click="RadioButton_displayname_Click"/>
+        <RadioButton x:Name="RadioButton_codename" Content="Search Code Name" HorizontalAlignment="Left" Margin="47,5,0,0" VerticalAlignment="Top" Height="15" Width="120" Click="RadioButton_codename_Click"/>
 
     </Grid>
 </Window>

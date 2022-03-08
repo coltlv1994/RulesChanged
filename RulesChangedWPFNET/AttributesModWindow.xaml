@@ -10,7 +10,7 @@
         Loaded="Window_Loaded">
     <Grid>
         <ScrollViewer ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Disabled" Grid.ColumnSpan="2" Margin="0,0,0,0">
-            <DataGrid x:Name="attributesDataGrid" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" CellEditEnding="attributesDataGrid_CellEditEnding">
+            <DataGrid x:Name="attributesDataGrid" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" CellEditEnding="attributesDataGrid_CellEditEnding" MouseDoubleClick="attributesDataGrid_MouseDoubleClick">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Attributes' Name" Binding="{Binding BINDING_ATTRIBUTES_NAME}" IsReadOnly="True"/>
                     <DataGridTextColumn Header="Value" Binding="{Binding BINDING_ATTRIBUTES_VALUE}" />

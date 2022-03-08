@@ -27,11 +27,14 @@ namespace RulesChangedWPFNET
             m_index = (int)windowIndex;
             m_parent = parent;
             mainListView.ItemsSource = displaySource;
+            m_searchField = null;
+            SearchBox.IsReadOnly = true;
         }
 
         private int m_index;
         private MainWindow m_parent;
         public ObservableCollection<DisplayItem> displaySource = new ObservableCollection<DisplayItem>();
+        private Nullable<bool> m_searchField; // true for code name; false for display name;
 
         private void mainListView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
@@ -61,18 +64,44 @@ namespace RulesChangedWPFNET
             }
         }
 
+        private void RadioButton_codename_Click(object sender, RoutedEventArgs e)
+        {
+            m_searchField = true;
+            SearchBox.IsReadOnly = false;
+            SearchBox.Clear();
+        }
+
+        private void RadioButton_displayname_Click(object sender, RoutedEventArgs e)
+        {
+            m_searchField = false;
+            SearchBox.IsReadOnly = false;
+            SearchBox.Clear();
+        }
+
         private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            string textOrig = SearchBox.Text;
-            string upper = textOrig.ToUpper();
-            string lower = textOrig.ToLower();
+            string textOrig = SearchBox.Text.ToLower();
 
-            var emFiltered = from item in displaySource
-                             let ename = item.BINDING_CODENAME
-                             where ename.StartsWith(upper) || ename.StartsWith(lower) || ename.Contains(textOrig)
-                             select item;
+            if (m_searchField == true)
+            {
+                var emFiltered = from item in displaySource
+                                 let ename = item.BINDING_CODENAME.ToLower()
+                                 where ename.Contains(textOrig)
+                                 select item;
 
-            mainListView.ItemsSource = emFiltered;
+                mainListView.ItemsSource = emFiltered;
+            }
+            else
+            {
+                // Sometimes we have (displayname == null) and have to add a new condition
+                // otherwise unwanted exception will raise.
+                var emFiltered = from item in displaySource
+                                 let ename = item.BINDING_DISPLAYNAME
+                                 where ename != null && ename.ToLower().Contains(textOrig)
+                                 select item;
+
+                mainListView.ItemsSource = emFiltered;
+            }
         }
     }
 

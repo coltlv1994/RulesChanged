@@ -49,6 +49,10 @@ namespace RulesChangedWPFNET
         private void Window_Closed(object sender, EventArgs e)
         {
             m_parent.Show();
+            if (m_parent.IsEnabled == false)
+            {
+                m_parent.IsEnabled = true;
+            }
             this.Close();
         }
 
@@ -68,6 +72,20 @@ namespace RulesChangedWPFNET
             string attributesValue_to_update = ((TextBox)e.EditingElement).Text;
 
             itemToModify[attributesName_to_update] = attributesValue_to_update;
+        }
+
+        private void attributesDataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            // if we the field is weapon, we enter weapon edit mode
+            // otherwise don't do anything, enter normal text edit mode
+            string attributeField = ((TextBlock)e.OriginalSource).Text;
+            MainWindow mWindow = (MainWindow)Application.Current.MainWindow;
+            if (mWindow.tagCategorizedList.ContainsKey(attributeField))
+            {
+                AttributesModWindow newModWindow = new AttributesModWindow((mWindow.dataSets[(int)mWindow.tagCategorizedList[attributeField]])[attributeField], this);
+                this.IsEnabled = false;
+                newModWindow.Show();
+            }
         }
     }
 }
