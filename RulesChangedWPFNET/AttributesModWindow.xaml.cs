@@ -35,30 +35,30 @@ namespace RulesChangedWPFNET
 
     public partial class AttributesModWindow : Window
     {
-        private Hashtable itemToModify;
+        private Hashtable m_itemToModify;
+        private string m_tag;
         private Window m_parent;
         ObservableCollection<AttributesDisplayItem> attributesList = new ObservableCollection<AttributesDisplayItem>();
-        public AttributesModWindow(Hashtable ht, Window parent)
+        public AttributesModWindow(string tagToDisplay, Window parent)
         {
             InitializeComponent();
-            itemToModify = ht;
+            m_tag = tagToDisplay;
             m_parent = parent;
+            MainWindow mWindow = (MainWindow)Application.Current.MainWindow;
+            m_itemToModify = (mWindow.dataSets[(int)mWindow.tagCategorizedList[m_tag]])[m_tag];
+            this.Title = "Attributes Modification: " + m_tag;
             attributesDataGrid.ItemsSource = attributesList;
         }
 
         private void Window_Closed(object sender, EventArgs e)
         {
             m_parent.Show();
-            if (m_parent.IsEnabled == false)
-            {
-                m_parent.IsEnabled = true;
-            }
             this.Close();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            foreach (DictionaryEntry s in itemToModify)
+            foreach (DictionaryEntry s in m_itemToModify)
             {
                 this.attributesList.Add(new AttributesDisplayItem((string)s.Key, (string)s.Value));
             }
@@ -71,7 +71,7 @@ namespace RulesChangedWPFNET
             string attributesName_to_update = ((AttributesDisplayItem)((DataGridRow)e.Row).Item).BINDING_ATTRIBUTES_NAME;
             string attributesValue_to_update = ((TextBox)e.EditingElement).Text;
 
-            itemToModify[attributesName_to_update] = attributesValue_to_update;
+            m_itemToModify[attributesName_to_update] = attributesValue_to_update;
         }
 
         private void attributesDataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -80,10 +80,10 @@ namespace RulesChangedWPFNET
             // otherwise don't do anything, enter normal text edit mode
             string attributeField = ((TextBlock)e.OriginalSource).Text;
             MainWindow mWindow = (MainWindow)Application.Current.MainWindow;
-            if (mWindow.tagCategorizedList.ContainsKey(attributeField))
+            if ((attributeField != m_tag) && (mWindow.tagCategorizedList.ContainsKey(attributeField)))
             {
-                AttributesModWindow newModWindow = new AttributesModWindow((mWindow.dataSets[(int)mWindow.tagCategorizedList[attributeField]])[attributeField], this);
-                this.IsEnabled = false;
+                AttributesModWindow newModWindow = new AttributesModWindow(attributeField, this);
+                this.Hide();
                 newModWindow.Show();
             }
         }

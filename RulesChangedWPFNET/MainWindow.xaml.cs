@@ -33,10 +33,10 @@ namespace RulesChangedWPFNET
 
         public enum SublistIndex
         {
-            InfantryTypes, //     0,
-            VehicleTypes, //      1
-            AircraftTypes, //     2
-            BuildingTypes, //     3
+            BuildingTypes, //     0, must be at the beginning since it requires to be in exact the same order of reading.
+            InfantryTypes, //     1
+            VehicleTypes, //      2
+            AircraftTypes, //     3
             Warheads, //          4
             DummyTags,  //        5
             Projectiles, //       6
@@ -59,6 +59,7 @@ namespace RulesChangedWPFNET
         Dictionary<string, GlobalProperty.SublistIndex> predefinedTag = new Dictionary<string, GlobalProperty.SublistIndex>();
         public List<Dictionary<string, Hashtable>> dataSets = new List<Dictionary<string, Hashtable>>();
         public List<string> dummyLinesToWrite = new List<string>();
+        public List<string> buildingList_ordered = new();
 
         public MainWindow()
         {
@@ -94,6 +95,7 @@ namespace RulesChangedWPFNET
             tagCategorizedList.Clear();
             dataSets.Clear();
             dummyLinesToWrite.Clear();
+            buildingList_ordered.Clear();
             // As per instructions on the forum, some hard-coded fields must be treated as "dummy"
             tagCategorizedList.Add("Colors", GlobalProperty.SublistIndex.DummyTags);
             tagCategorizedList.Add("Sides", GlobalProperty.SublistIndex.DummyTags);
@@ -179,6 +181,11 @@ namespace RulesChangedWPFNET
                             {
                                 // dummy tags do not require any data fields
                                 dataSets[(int)currentSublistIndex].Add(fieldWithoutWhitespace, new Hashtable());
+
+                                if (currentSublistIndex == GlobalProperty.SublistIndex.BuildingTypes)
+                                {
+                                    buildingList_ordered.Add(fieldWithoutWhitespace);
+                                }
                             }
                         }
                         catch (Exception ex)
@@ -202,7 +209,7 @@ namespace RulesChangedWPFNET
                             {
                                 dataSets[(int)currentSublistIndex][currentTag][fields[0]] = sWhitespace1.Replace(fields[fields.Length - 1], "");
                             }
-                            
+
                         }
                     }
                 }
@@ -315,7 +322,6 @@ namespace RulesChangedWPFNET
                 }
             }
 
-            // write first tag, [BuildingTypes]
             StreamWriter sw = new StreamWriter(exportPath, false, Encoding.ASCII);
             List<string> appendixList = new List<string>();
 
@@ -329,7 +335,25 @@ namespace RulesChangedWPFNET
             // Weapons and projectiles have no registration list, along side uncategorized list, they must be treated last
             int nonRegisteredListIndex = (int)GlobalProperty.SublistIndex.DummyTags; // 
             int loopIndex;
-            for (loopIndex = 0; loopIndex < nonRegisteredListIndex; loopIndex++)
+            // loop index will have to start from 1 since BuildingTypes == 0 and it requires special treatment.
+            // It is hard-coded, keep BuildingTypes as 0 in enum.
+            sw.WriteLine("[BuildingTypes]");
+            int buidlingEntryCount = 0; // originally it starts from 0 but it seems does not matter.
+            foreach (string tag in buildingList_ordered)
+            {
+                sw.WriteLine(buidlingEntryCount.ToString() + "=" + tag);
+                buidlingEntryCount++;
+                if (dataSets[0][tag].Count != 0)
+                {
+                    appendixList.Add("[" + tag + "]");
+                }
+                foreach (DictionaryEntry entry in dataSets[0][tag])
+                {
+                    appendixList.Add((string)entry.Key + "=" + (string)entry.Value);
+                }
+            }
+
+            for (loopIndex = 1; loopIndex < nonRegisteredListIndex; loopIndex++)
             {
                 sw.WriteLine("[" + Enum.GetName(typeof(GlobalProperty.SublistIndex), loopIndex) + "]");
                 int j = 1;

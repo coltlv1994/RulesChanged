@@ -41,7 +41,7 @@ namespace RulesChangedWPFNET
             var item = ((FrameworkElement)e.OriginalSource).DataContext as DisplayItem;
             if (item != null)
             {
-                AttributesModWindow newWindow = new AttributesModWindow((m_parent.dataSets[m_index])[item.BINDING_CODENAME], this);
+                AttributesModWindow newWindow = new AttributesModWindow(item.BINDING_CODENAME, this);
                 this.Hide();
                 newWindow.Show();
             }
