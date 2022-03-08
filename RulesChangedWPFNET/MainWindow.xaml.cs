@@ -447,7 +447,7 @@ namespace RulesChangedWPFNET
             Vehicle_button.IsEnabled = false;
             Aircraft_button.IsEnabled = false;
             Warheads_button.IsEnabled = false;
-            Uncategorized_button.IsEnabled = false;
+            Uncategorized_button.IsEnabled = false; //
             Projectiles_button.IsEnabled = false;
             Weapons_button.IsEnabled = false;
         }
