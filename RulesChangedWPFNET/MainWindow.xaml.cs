@@ -53,6 +53,7 @@ namespace RulesChangedWPFNET
         string rulesFilePath = "";
         string exportPath = "";
         string uncategorizedTagExportPath = ".\\output\\uncategorized_tags";
+        string attributesFieldPath = ".\\attribute_apply_field";
         int fieldsCount = ((int)GlobalProperty.SublistIndex.MAX); //Dummy tags do not need any field.
 
         public Dictionary<string, GlobalProperty.SublistIndex> tagCategorizedList = new();
@@ -60,6 +61,7 @@ namespace RulesChangedWPFNET
         public List<Dictionary<string, Hashtable>> dataSets = new List<Dictionary<string, Hashtable>>();
         public List<string> dummyLinesToWrite = new List<string>();
         public List<string> buildingList_ordered = new();
+        public Dictionary<GlobalProperty.SublistIndex, List<string>> attributesFieldAllowedList = new Dictionary<GlobalProperty.SublistIndex, List<string>>();
 
         public MainWindow()
         {
@@ -103,9 +105,18 @@ namespace RulesChangedWPFNET
 
             if (readFromRules() == true)
             {
-                enable_buttons();
-                Menu_file_save.IsEnabled = true;
-                GlobalProperty.FileOpened = true;
+                //DEBUG_attributes_count_by_category();
+                if (!generate_attribute_default_field())
+                {
+                    return;
+                }
+                else
+                {
+                    enable_buttons();
+                    Menu_file_save.IsEnabled = true;
+                    GlobalProperty.FileOpened = true;
+                }
+
             }
             else
             {
@@ -253,6 +264,7 @@ namespace RulesChangedWPFNET
             for (int i = 0; i < fc; i++)
             {
                 dataSets.Add(new Dictionary<string, Hashtable>());
+                attributesFieldAllowedList.Add((GlobalProperty.SublistIndex)i, new List<string>());
             }
         }
 
@@ -304,6 +316,7 @@ namespace RulesChangedWPFNET
                     }
                 }
             }
+
             return true;
         }
 
@@ -366,7 +379,10 @@ namespace RulesChangedWPFNET
                         appendixList.Add("[" + item.Key + "]");
                         foreach (DictionaryEntry entry in item.Value)
                         {
-                            appendixList.Add((string)entry.Key + "=" + (string)entry.Value);
+                            if ((string)entry.Value != "")
+                            {
+                                appendixList.Add((string)entry.Key + "=" + (string)entry.Value);
+                            }
                         }
                     }
                 }
@@ -381,7 +397,10 @@ namespace RulesChangedWPFNET
                     appendixList.Add("[" + item.Key + "]");
                     foreach (DictionaryEntry entry in item.Value)
                     {
-                        appendixList.Add((string)entry.Key + "=" + (string)entry.Value);
+                        if ((string)entry.Value != "")
+                        {
+                            appendixList.Add((string)entry.Key + "=" + (string)entry.Value);
+                        }
                     }
                 }
             }
@@ -537,6 +556,117 @@ namespace RulesChangedWPFNET
             {
                 rulesFilePath = args[3];
                 exportPath = args[5];
+            }
+        }
+
+        private void DEBUG_attributes_count_by_category()
+        {
+            //List<Dictionary<string, int>> attributesCount = new List<Dictionary<string, int>>();
+
+            //for (int i = 0; i < fieldsCount; i++)
+            //{
+            //    attributesCount.Add(new Dictionary<string, int>());
+            //}
+
+            //for (int i = 0; i < fieldsCount - 1; i++) // Uncategorized tags are omitted
+            //{
+            //    foreach (KeyValuePair<string, Hashtable> item in dataSets[i])
+            //    {
+            //        foreach (DictionaryEntry entry in item.Value)
+            //        {
+            //            if ((string)entry.Value != "")
+            //            {
+            //                if (!attributesCount[i].ContainsKey((string)entry.Key))
+            //                {
+            //                    attributesCount[i].Add((string)entry.Key, 1);
+            //                }
+            //                else
+            //                {
+            //                    (attributesCount[i])[(string)entry.Key] += 1;
+            //                }
+            //            }
+            //        }
+            //    }
+            //}
+
+            Dictionary<string, List<string>> attributesInFields = new Dictionary<string, List<string>>();
+            for (int i = 0; i < fieldsCount - 1; i++)
+            {
+                string fieldString = Enum.GetName(typeof(GlobalProperty.SublistIndex), i);
+                foreach (KeyValuePair<string, Hashtable> item in dataSets[i])
+                {
+                    foreach (DictionaryEntry entry in item.Value)
+                    {
+                        if (attributesInFields.ContainsKey((string)entry.Key))
+                        {
+                            if (!attributesInFields[(string)entry.Key].Contains(fieldString))
+                            {
+                                attributesInFields[(string)entry.Key].Add(fieldString);
+                            }
+                        }
+                        else
+                        {
+                            attributesInFields.Add((string)entry.Key, new List<string>());
+                            attributesInFields[(string)entry.Key].Add(fieldString);
+                        }
+                    }
+                }
+            }
+
+            StreamWriter swAC = new StreamWriter(".\\output\\attributes_apply_field");
+
+            //for (int i = 0; i < fieldsCount - 1; i++)
+            //{
+            //    swAC.WriteLine(Enum.GetName(typeof(GlobalProperty.SublistIndex), i) + ", total of " + dataSets[i].Count.ToString());
+            //    foreach (KeyValuePair<string, int> item in attributesCount[i].OrderByDescending(p => p.Value))
+            //    {
+            //        swAC.WriteLine(item.Key + ", count: " + item.Value.ToString());
+            //    }
+            //    swAC.WriteLine(Environment.NewLine);
+            //}
+
+            foreach(KeyValuePair<string, List<string>> item in attributesInFields)
+            {
+                string printField = "";
+                foreach (string field in item.Value)
+                {
+                    printField += (field + ",");
+                }
+                swAC.WriteLine(item.Key + "," + printField);
+            }
+
+            swAC.Close();
+        }
+
+        private bool generate_attribute_default_field()
+        {
+            if (File.Exists(attributesFieldPath))
+            {
+                foreach (string line in File.ReadLines(attributesFieldPath))
+                {
+                    string[] fields = line.Split(',');
+                    if (fields[0] != " ")
+                    {
+                        for (int i = 1; i < fields.Length - 1; i++)
+                        {
+                            attributesFieldAllowedList[(GlobalProperty.SublistIndex)Enum.Parse(typeof(GlobalProperty.SublistIndex), fields[i])].Add(fields[0]);
+                        }
+                    }
+                }
+
+                for (int i = 0; i < attributesFieldAllowedList.Count; i++)
+                {
+                    if (attributesFieldAllowedList[(GlobalProperty.SublistIndex)i].Count > 0)
+                    {
+                        // The list will be ordered alphabetically, from A to Z.
+                        attributesFieldAllowedList[(GlobalProperty.SublistIndex)i] = attributesFieldAllowedList[(GlobalProperty.SublistIndex)i].OrderBy(x => x).ToList();
+                    }
+                }
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
     }

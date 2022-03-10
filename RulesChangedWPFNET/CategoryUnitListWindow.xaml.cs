@@ -13,6 +13,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Text.RegularExpressions;
 
 namespace RulesChangedWPFNET
 {
@@ -32,6 +33,7 @@ namespace RulesChangedWPFNET
         }
 
         private int m_index;
+        private string m_tagSelected = "";
         private MainWindow m_parent;
         public ObservableCollection<DisplayItem> displaySource = new ObservableCollection<DisplayItem>();
         private Nullable<bool> m_searchField; // true for code name; false for display name;
@@ -41,7 +43,7 @@ namespace RulesChangedWPFNET
             var item = ((FrameworkElement)e.OriginalSource).DataContext as DisplayItem;
             if (item != null)
             {
-                AttributesModWindow newWindow = new AttributesModWindow(item.BINDING_CODENAME, this);
+                AttributesModWindow newWindow = new AttributesModWindow(item.BINDING_CODENAME, this, this.m_index);
                 this.Hide();
                 newWindow.Show();
             }
@@ -62,6 +64,7 @@ namespace RulesChangedWPFNET
                     dpName = "";
                 this.displaySource.Add(new DisplayItem((string)item.Key, (string)((item.Value)["Name"])));
             }
+            DeleteButton.IsEnabled = false;
         }
 
         private void RadioButton_codename_Click(object sender, RoutedEventArgs e)
@@ -103,6 +106,65 @@ namespace RulesChangedWPFNET
                 mainListView.ItemsSource = emFiltered;
             }
         }
+
+        private void mainListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (mainListView.SelectedItem != null)
+            {
+                DisplayItem itemSelected = mainListView.SelectedItem as DisplayItem;
+                m_tagSelected = itemSelected.BINDING_CODENAME;
+                label_selectionName.Content = m_tagSelected;
+                DeleteButton.IsEnabled = true;
+            }
+            else
+            {
+                m_tagSelected = "";
+                label_selectionName.Content = "NONE";
+                DeleteButton.IsEnabled = false;
+            }
+        }
+
+        private void DeleteButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (m_parent.dataSets[m_index].ContainsKey(m_tagSelected))
+            {
+                m_parent.dataSets[m_index].Remove(m_tagSelected);
+                m_parent.tagCategorizedList.Remove(m_tagSelected);
+                if (m_index == 0) // building special treatment
+                {
+                    m_parent.buildingList_ordered.Remove(m_tagSelected);
+                }
+                this.displaySource.Remove(this.displaySource.Where(i => i.BINDING_CODENAME == m_tagSelected).Single());
+            }
+        }
+
+        private void AddButton_Click(object sender, RoutedEventArgs e)
+        {
+            // all whitespaces are purged.
+            Regex sWhitespace1 = new Regex(@"\s+");
+            string itemToAdd = sWhitespace1.Replace(this.NewItemTextBox.Text,"");
+            if (itemToAdd != "")
+            {
+                this.NewItemTextBox.Text = "";
+                if (!m_parent.dataSets[m_index].ContainsKey(itemToAdd))
+                {
+                    m_parent.dataSets[m_index].Add(itemToAdd, new Hashtable());
+                    m_parent.tagCategorizedList.Add(itemToAdd, (GlobalProperty.SublistIndex)m_index);
+                    if (m_index == 0)
+                    {
+                        m_parent.buildingList_ordered.Add(itemToAdd);
+                    }
+                    this.displaySource.Add(new DisplayItem(itemToAdd, ""));
+                    AttributesModWindow newWindow = new AttributesModWindow(itemToAdd, this, this.m_index);
+                    this.Hide();
+                    newWindow.Show();
+                }
+                else
+                {
+                    this.NewItemTextBox.Text = "";
+                }
+            }
+        }
     }
 
     public class DisplayItem
@@ -115,5 +177,27 @@ namespace RulesChangedWPFNET
             BINDING_CODENAME = bc;
             BINDING_DISPLAYNAME = bd;
         }
+
+        //public override bool Equals(object obj) => this.Equals(obj as DisplayItem);
+
+        //public bool Equals(DisplayItem item)
+        //{
+        //    if (item == null)
+        //    {
+        //        return false;
+        //    }
+            
+        //    if (Object.ReferenceEquals(this, item))
+        //    {
+        //        return true;
+        //    }
+
+        //    if (this.GetType() != item.GetType())
+        //    {
+        //        return false;
+        //    }
+
+        //    return (this.BINDING_CODENAME == item.BINDING_CODENAME);
+        //}
     }
 }

@@ -13,8 +13,8 @@
             <ColumnDefinition/>
             <ColumnDefinition Width="0*"/>
         </Grid.ColumnDefinitions>
-        <ScrollViewer ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Disabled" Margin="0,20,0,0">
-            <ListView x:Name="mainListView" MouseDoubleClick="mainListView_MouseDoubleClick" Height="404">
+        <ScrollViewer ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Disabled" Margin="0,30,0,0">
+            <ListView x:Name="mainListView" MouseDoubleClick="mainListView_MouseDoubleClick" Height="404" SelectionChanged="mainListView_SelectionChanged">
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header="Code Name" DisplayMemberBinding="{Binding BINDING_CODENAME}" />
@@ -23,9 +23,14 @@
                 </ListView.View>
             </ListView>
         </ScrollViewer>
-        <TextBox x:Name="SearchBox" HorizontalAlignment="Left" Margin="308,0,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="121" Height="20"  MaxLines="1" TextChanged="SearchBox_TextChanged"/>
-        <RadioButton x:Name="RadioButton_displayname" Content="Search Display Name" HorizontalAlignment="Left" Margin="172,5,0,0" VerticalAlignment="Top" Height="15" Width="131" Click="RadioButton_displayname_Click"/>
-        <RadioButton x:Name="RadioButton_codename" Content="Search Code Name" HorizontalAlignment="Left" Margin="47,5,0,0" VerticalAlignment="Top" Height="15" Width="120" Click="RadioButton_codename_Click"/>
+        <TextBox x:Name="SearchBox" HorizontalAlignment="Left" Margin="279,6,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="121" Height="20"  MaxLines="1" TextChanged="SearchBox_TextChanged"/>
+        <RadioButton x:Name="RadioButton_displayname" Content="Search Display Name" HorizontalAlignment="Left" Margin="135,8,0,0" VerticalAlignment="Top" Height="15" Width="131" Click="RadioButton_displayname_Click" RenderTransformOrigin="0.492,1.399"/>
+        <RadioButton x:Name="RadioButton_codename" Content="Search Code Name" HorizontalAlignment="Left" Margin="10,8,0,0" VerticalAlignment="Top" Height="15" Width="120" Click="RadioButton_codename_Click"/>
+        <Button x:Name="DeleteButton" Content="Delete" HorizontalAlignment="Left" Margin="570,6,0,0" VerticalAlignment="Top" Click="DeleteButton_Click"/>
+        <Label x:Name="label" Content="Current selection:" HorizontalAlignment="Left" Margin="409,3,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="label_selectionName" Content="NONE" HorizontalAlignment="Left" Margin="511,3,0,0" VerticalAlignment="Top"/>
+        <Button x:Name="AddButton" Content="Add" HorizontalAlignment="Left" Margin="622,6,0,0" VerticalAlignment="Top" Click="AddButton_Click"/>
+        <TextBox x:Name="NewItemTextBox" HorizontalAlignment="Left" Margin="662,6,0,0" Text="" VerticalAlignment="Top" Width="120" MaxLines="1" TextWrapping="NoWrap"/>
 
     </Grid>
 </Window>

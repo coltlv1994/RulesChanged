@@ -38,16 +38,32 @@ namespace RulesChangedWPFNET
         private Hashtable m_itemToModify;
         private string m_tag;
         private Window m_parent;
+        private MainWindow m_mainWindow;
+        private int m_sublistIndex; // for convenience, this is passed by parent.
         ObservableCollection<AttributesDisplayItem> attributesList = new ObservableCollection<AttributesDisplayItem>();
-        public AttributesModWindow(string tagToDisplay, Window parent)
+        ObservableCollection<string> availableAttributeList = new ObservableCollection<string>();
+        //List<string> availableAttributeList = new List<string>();
+        public AttributesModWindow(string tagToDisplay, Window parent, int sIndex)
         {
             InitializeComponent();
             m_tag = tagToDisplay;
             m_parent = parent;
-            MainWindow mWindow = (MainWindow)Application.Current.MainWindow;
-            m_itemToModify = (mWindow.dataSets[(int)mWindow.tagCategorizedList[m_tag]])[m_tag];
+            m_sublistIndex = sIndex;
+            m_mainWindow = (MainWindow)Application.Current.MainWindow;
+            m_itemToModify = (m_mainWindow.dataSets[(int)m_mainWindow.tagCategorizedList[m_tag]])[m_tag];
             this.Title = "Attributes Modification: " + m_tag;
             attributesDataGrid.ItemsSource = attributesList;
+            if (m_sublistIndex == 8) // uncategorized
+            {
+                this.attribute_comboBox.IsEnabled = false;
+                this.Add_button.IsEnabled = false;
+                this.Clear_button.IsEnabled = false;
+            }
+            else
+            {
+                availableAttributeList = new ObservableCollection<string>(m_mainWindow.attributesFieldAllowedList[(GlobalProperty.SublistIndex)m_sublistIndex]);
+                attribute_comboBox.ItemsSource = availableAttributeList;
+            }
         }
 
         private void Window_Closed(object sender, EventArgs e)
@@ -58,9 +74,16 @@ namespace RulesChangedWPFNET
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+         
+            //availableAttributeList = new List<string>(m_mainWindow.attributesFieldAllowedList[(GlobalProperty.SublistIndex)m_sublistIndex]);
+
             foreach (DictionaryEntry s in m_itemToModify)
             {
                 this.attributesList.Add(new AttributesDisplayItem((string)s.Key, (string)s.Value));
+                if (m_sublistIndex != 8)
+                {
+                    this.availableAttributeList.Remove((string)s.Key);
+                }
             }
         }
 
@@ -76,16 +99,79 @@ namespace RulesChangedWPFNET
 
         private void attributesDataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            // if we the field is weapon, we enter weapon edit mode
-            // otherwise don't do anything, enter normal text edit mode
             string attributeField = ((TextBlock)e.OriginalSource).Text;
-            MainWindow mWindow = (MainWindow)Application.Current.MainWindow;
-            if ((attributeField != m_tag) && (mWindow.tagCategorizedList.ContainsKey(attributeField)))
+            if ((attributeField != m_tag) && (m_mainWindow.tagCategorizedList.ContainsKey(attributeField)))
             {
-                AttributesModWindow newModWindow = new AttributesModWindow(attributeField, this);
+                int sIndex = (int)m_mainWindow.tagCategorizedList[attributeField];
+                AttributesModWindow newModWindow = new AttributesModWindow(attributeField, this, sIndex);
                 this.Hide();
                 newModWindow.Show();
             }
+        }
+
+        private void Add_button_Click(object sender, RoutedEventArgs e)
+        {
+            string attributeToAdd = this.attribute_comboBox.SelectedItem.ToString();
+            string attributeValueToAdd = this.attributeValueTextbox.Text;
+
+            if (attributeToAdd != "" && attributeValueToAdd != "")
+            {
+                if (Add_attribute(attributeToAdd, attributeValueToAdd))
+                {
+                    // success
+                    this.attributeValueTextbox.Text = "";
+                }
+                else
+                {
+                    // failed
+                }
+            }
+            else
+            {
+                // field cannot be empty
+            }
+        }
+
+        private void Clear_button_Click(object sender, RoutedEventArgs e)
+        {
+            this.attributeValueTextbox.Text = "";
+        }
+
+        private bool Add_attribute(string attributeName, string attributeValue)
+        {
+            m_mainWindow.dataSets[m_sublistIndex][m_tag].Add(attributeName, attributeValue);
+            availableAttributeList.Remove(attributeName);
+            attributesList.Add(new AttributesDisplayItem(attributeName, attributeValue));
+            return true;
+        }
+
+        private bool Remove_attribute(string attributeName)
+        {
+            if (m_mainWindow.dataSets[m_sublistIndex][m_tag].ContainsKey(attributeName))
+            {
+                m_mainWindow.dataSets[m_sublistIndex][m_tag].Remove(attributeName);
+            }
+            attributesList.Remove(attributesList.Where(i => i.BINDING_ATTRIBUTES_NAME == attributeName).Single());
+            availableAttributeList.Add(attributeName);
+            return true;
+            
+        }
+
+        private void attributesDataGrid_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Delete)
+            {
+                AttributesDisplayItem item = ((DataGridCell)e.OriginalSource).DataContext as AttributesDisplayItem;
+                if (item != null)
+                {
+                    Remove_attribute(item.BINDING_ATTRIBUTES_NAME);
+                }
+            }
+        }
+
+        private void attribute_comboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            this.attributeValueTextbox.Text = "";
         }
     }
 }

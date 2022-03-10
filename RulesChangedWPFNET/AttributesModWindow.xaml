@@ -9,13 +9,19 @@
         Closed="Window_Closed"
         Loaded="Window_Loaded">
     <Grid>
-        <ScrollViewer ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Disabled" Grid.ColumnSpan="2" Margin="0,0,0,0">
-            <DataGrid x:Name="attributesDataGrid" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" CellEditEnding="attributesDataGrid_CellEditEnding" MouseDoubleClick="attributesDataGrid_MouseDoubleClick">
+        <ScrollViewer ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Disabled" Grid.ColumnSpan="2" Margin="0,30,0,0">
+            <DataGrid x:Name="attributesDataGrid" AutoGenerateColumns="False" CanUserAddRows="False" CanUserDeleteRows="False" CellEditEnding="attributesDataGrid_CellEditEnding" MouseDoubleClick="attributesDataGrid_MouseDoubleClick" PreviewKeyDown="attributesDataGrid_PreviewKeyDown">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Attributes' Name" Binding="{Binding BINDING_ATTRIBUTES_NAME}" IsReadOnly="True"/>
                     <DataGridTextColumn Header="Value" Binding="{Binding BINDING_ATTRIBUTES_VALUE}" />
                 </DataGrid.Columns>
             </DataGrid>
         </ScrollViewer>
+        <ComboBox x:Name="attribute_comboBox" HorizontalAlignment="Left" Margin="133,5,0,0" VerticalAlignment="Top" Width="120" IsEditable="False" IsReadOnly="True" SelectionChanged="attribute_comboBox_SelectionChanged"/>
+        <Label x:Name="label" Content="New attribute to add:" HorizontalAlignment="Left" Margin="10,3,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="label1" Content="Value" HorizontalAlignment="Left" Margin="258,3,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="attributeValueTextbox" HorizontalAlignment="Left" Margin="297,7,0,0" TextWrapping="NoWrap" MaxLines="1" VerticalAlignment="Top" Width="120"/>
+        <Button x:Name="Add_button" Content="Add" HorizontalAlignment="Left" Margin="444,6,0,0" VerticalAlignment="Top" Click="Add_button_Click"/>
+        <Button x:Name="Clear_button" Content="Clear" HorizontalAlignment="Left" Margin="490,6,0,0" VerticalAlignment="Top" Click="Clear_button_Click"/>
     </Grid>
 </Window>
