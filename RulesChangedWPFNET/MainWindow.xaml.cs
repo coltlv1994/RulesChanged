@@ -53,7 +53,7 @@ namespace RulesChangedWPFNET
         string rulesFilePath = "";
         string exportPath = "";
         string uncategorizedTagExportPath = ".\\output\\uncategorized_tags";
-        string attributesFieldPath = ".\\attribute_apply_field";
+        string attributesFieldPath = "C:\\Users\\Colt\\source\\repos\\coltlv1994\\RulesChanged\\RulesChangedWPFNET\\attribute_apply_field";
         int fieldsCount = ((int)GlobalProperty.SublistIndex.MAX); //Dummy tags do not need any field.
 
         public Dictionary<string, GlobalProperty.SublistIndex> tagCategorizedList = new();
@@ -261,6 +261,7 @@ namespace RulesChangedWPFNET
         private void initialDataSets(int fc)
         {
             dataSets.Clear(); // will here, i.e. clear a List of Dictionary<string, Hashtable> cause memory leak? need to investigate
+            attributesFieldAllowedList.Clear();
             for (int i = 0; i < fc; i++)
             {
                 dataSets.Add(new Dictionary<string, Hashtable>());
@@ -552,10 +553,13 @@ namespace RulesChangedWPFNET
              * debug openfile <PATH_TO_OPEN> savefile <PATH_TO_SAVE>
              */
             string[] args = Environment.GetCommandLineArgs();
-            if (args[1] == "debug")
+            if (args.Length > 1)
             {
-                rulesFilePath = args[3];
-                exportPath = args[5];
+                if (args[1] == "debug")
+                {
+                    rulesFilePath = args[3];
+                    exportPath = args[5];
+                }
             }
         }
 
