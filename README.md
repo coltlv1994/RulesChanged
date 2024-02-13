@@ -25,9 +25,9 @@
 2. 让他同时支持中文和英文。
 
 ## 开发环境
-Intel Core i9-9900K, 32GB RAM,
+AMD Ryzen 7 7800X3D, 32GB RAM,
 Windows 10 21H2, Visual Studio 2022,
-.NET 6, WPF 
+.NET 6, WPF
 
 ## 第三方资源使用
 1. 红警DIY论坛Mamamia自制的INIs for Modders，基于原版改进，原文链接：https://bbs.ra2diy.com/forum.php?mod=viewthread&tid=17506 。作者在其提供的rulesmd.ini基础上略有改动并作为基础范本。
@@ -35,7 +35,6 @@ Windows 10 21H2, Visual Studio 2022,
 ## 联系方式
 colt.github@outlook.com
 
-特别提醒：在未得到原作者明确同意之前，不会上传第三方资源。
 
 
 # RulesChanged - Red Alert 2 rules.ini/rulesmd.ini GUI editor
@@ -66,7 +65,7 @@ I am a native Chinese speaker, but for convenience of development, I choose to u
 2. Make it bi-lingual using Chinese and English.
 
 ## Development environment
-Intel Core i9-9900K, 32GB RAM,
+AMD Ryzen 7 7800X3D, 32GB RAM,
 Windows 10 21H2, Visual Studio 2022,
 .NET 6, WPF
 
@@ -75,5 +74,3 @@ Windows 10 21H2, Visual Studio 2022,
 
 ## Contact me
 Email: colt.github@outlook.com
-
-PS: Without explicit approval from authors, no third-party resources will be uploaded.
