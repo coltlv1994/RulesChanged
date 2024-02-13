@@ -99,14 +99,21 @@ namespace RulesChangedWPFNET
 
         private void attributesDataGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            string attributeField = ((TextBlock)e.OriginalSource).Text;
-            if ((attributeField != m_tag) && (m_mainWindow.tagCategorizedList.ContainsKey(attributeField)))
+            try
             {
-                int sIndex = (int)m_mainWindow.tagCategorizedList[attributeField];
-                AttributesModWindow newModWindow = new AttributesModWindow(attributeField, this, sIndex);
-                this.Hide();
-                newModWindow.Show();
+                string attributeField = ((TextBlock)e.OriginalSource).Text;
+                if ((attributeField != m_tag) && (m_mainWindow.tagCategorizedList.ContainsKey(attributeField)))
+                {
+                    int sIndex = (int)m_mainWindow.tagCategorizedList[attributeField];
+                    AttributesModWindow newModWindow = new AttributesModWindow(attributeField, this, sIndex);
+                    this.Hide();
+                    newModWindow.Show();
+                }
+            } catch (Exception ex)
+            {
+                return;
             }
+
         }
 
         private void Add_button_Click(object sender, RoutedEventArgs e)
